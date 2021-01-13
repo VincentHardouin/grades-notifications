@@ -1,5 +1,6 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
+const fs = require('fs');
 
 function getGrades(studentId) {
   return axios.get('https://campusonline.inseec.net/note/note_ajax.php', {
@@ -44,7 +45,13 @@ function gradesHtmmlToJson(str) {
   return els;
 }
 
+function writeGradesInFile(grades, filename) {
+  const stringifiedGrades = JSON.stringify(grades);
+  return fs.writeFileSync(filename, stringifiedGrades);
+}
+
 module.exports = {
   getGrades,
   gradesHtmmlToJson,
+  writeGradesInFile,
 };

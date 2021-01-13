@@ -1,8 +1,11 @@
+const sinon = require('sinon');
 const chai = require('chai');
+chai.use(require('sinon-chai'));
 const expect = chai.expect;
 const nock = require('nock');
+const fs = require('fs');
 
-const { getGrades, gradesHtmmlToJson } = require('../src/index');
+const { getGrades, gradesHtmmlToJson, writeGradesInFile } = require('../src/index');
 
 describe('index', () => {
 
@@ -487,6 +490,22 @@ describe('index', () => {
 
       // then
       expect(result).to.deep.equal(expectedResult);
+    });
+  });
+
+  describe('#writeGradesInFile', () => {
+    it('should save grades into file', async () => {
+      // given
+      const grades = { note: 12 };
+      const stringifiedGrades = JSON.stringify(grades);
+      const filename = 'filename.json';
+      const fsStub = sinon.stub(fs, 'writeFileSync').returns();
+
+      // when
+      writeGradesInFile(grades, filename);
+
+      // then
+      expect(fsStub).to.have.been.calledWithExactly(filename, stringifiedGrades);
     });
   });
 });
