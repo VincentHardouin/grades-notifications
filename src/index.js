@@ -6,7 +6,8 @@ const _ = require('lodash');
 const config = require('./config');
 
 function getGrades(studentId) {
-  return axios.get('https://campusonline.inseec.net/note/note_ajax.php', {
+  const schoolUrlForGrades = config.schoolUrlForGrades;
+  return axios.get(schoolUrlForGrades, {
     params: {
       'numero_dossier': studentId,
       version: 'PROD',

@@ -19,8 +19,9 @@ describe('index', () => {
     it('should return all grades', async () => {
       // given
       const studentId = 'azerty123';
-      const scope = nock('https://campusonline.inseec.net')
-        .get('/note/note_ajax.php')
+      const schoolUrlForGrades = config.schoolUrlForGrades;
+      const scope = nock(schoolUrlForGrades)
+        .get('/')
         .query({
           'numero_dossier': studentId,
           version: 'PROD',
