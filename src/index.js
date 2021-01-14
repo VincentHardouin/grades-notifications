@@ -1,6 +1,7 @@
 const axios = require('axios');
 const jsdom = require('jsdom');
 const fs = require('fs');
+const _ = require('lodash');
 
 function getGrades(studentId) {
   return axios.get('https://campusonline.inseec.net/note/note_ajax.php', {
@@ -58,7 +59,48 @@ function readGradesInFile(filename) {
   return  JSON.parse(stringifiedGrades);
 }
 
+function _getOldModule(newModule, oldModules) {
+  return _.find(oldModules, ['module', newModule.module]);
+}
+
+function _getOldMatiere(newMatiere, oldMatiere) {
+  return _.find(oldMatiere, ['title', newMatiere.title]);
+}
+
+function _findOnlyEditedEvaluations(oldModule) {
+  return function(matiere) {
+    const oldMatiere = _getOldMatiere(matiere, oldModule.matieres);
+    const summarizedEvaluations = _.differenceWith(matiere.evaluations, oldMatiere.evaluations, _.isEqual);
+
+    matiere.evaluations = summarizedEvaluations;
+    return matiere;
+  };
+}
+
+function _getOldModulesByDifferencesAndOldValues(differences, oldValues) {
+  return _.filter(oldValues, function(module) {
+    return _.some(differences, ['module', module.module]);
+  });
+}
+
+function getCoursesDifferences(oldValues, newValues) {
+  const differences = _(newValues).differenceWith(oldValues, _.isEqual).value();
+  const oldModules = _getOldModulesByDifferencesAndOldValues(differences, oldValues);
+
+  return _.map(differences, function(module) {
+
+    const oldModule = _getOldModule(module, oldModules);
+    let summarizedMatieres = _.differenceWith(module.matieres, oldModule.matieres, _.isEqual);
+
+    summarizedMatieres = _.map(summarizedMatieres, _findOnlyEditedEvaluations(oldModule));
+
+    module.matieres = summarizedMatieres;
+    return module;
+  });
+}
+
 module.exports = {
+  getCoursesDifferences,
   getGrades,
   gradesHtmmlToJson,
   readGradesInFile,

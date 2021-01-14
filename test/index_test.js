@@ -5,7 +5,7 @@ const expect = chai.expect;
 const nock = require('nock');
 const fs = require('fs');
 
-const { getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile } = require('../src/index');
+const { getCoursesDifferences, getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile } = require('../src/index');
 
 describe('index', () => {
 
@@ -540,6 +540,91 @@ describe('index', () => {
       // then
       expect(fsStub).to.have.been.calledWithExactly(filename, 'utf-8');
       expect(result).to.equal(null);
+    });
+  });
+
+  describe('#getCoursesDifferences', () => {
+    it('should return only difference from old values', () => {
+      // given
+      const oldValues = [
+        {
+          module: 'toto',
+          matieres: [
+            { title: 'tjnd', evaluations: [{ title: 'Examen', note: 12 }, { title: 'CC', note: 12 }] },
+            { title: 'tjnddfc', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: 10 }] },
+          ],
+        }, {
+          module: 'langues',
+          matieres: [
+            { title: 'fr', evaluations: [{ title: 'Examen', note: 12 }, { title: 'CC', note: 12 }] },
+            { title: 'en', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: '' }] },
+          ],
+        },
+        {
+          module: 'sport',
+          matieres: [
+            { title: 'bad', evaluations: [{ title: 'Examen', note: 7 }, { title: 'CC', note: 12 }] },
+            { title: 'volley', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: '' }] },
+          ],
+        }];
+
+      const newValues = [
+        {
+          module: 'toto',
+          matieres: [
+            { title: 'tjnd', evaluations: [{ title: 'Examen', note: 12 }, { title: 'CC', note: 12 }] },
+            { title: 'tjnddfc', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: 10 }] },
+          ],
+        }, {
+          module: 'langues',
+          matieres: [
+            { title: 'fr', evaluations: [{ title: 'Examen', note: 12 }, { title: 'CC', note: 12 }] },
+            { title: 'en', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: 19 }] },
+          ],
+        },{
+          module: 'sport',
+          matieres: [
+            { title: 'bad', evaluations: [{ title: 'Examen', note: 7 }, { title: 'CC', note: 12 }] },
+            { title: 'volley', evaluations: [{ title: 'Examen', note: 10 }, { title: 'CC', note: 15 }] },
+          ],
+        }];
+
+      const expectedDifferences = [
+        {
+          matieres: [
+            {
+              evaluations: [
+                {
+                  note: 19,
+                  title: 'CC',
+                },
+              ],
+              title: 'en',
+            },
+          ],
+          module: 'langues',
+        },
+        {
+          matieres: [
+            {
+              evaluations: [
+                {
+                  note: 15,
+                  title: 'CC',
+                },
+              ],
+              title: 'volley',
+            },
+          ],
+          module: 'sport',
+        },
+      ];
+
+      // when
+      const result = getCoursesDifferences(oldValues, newValues);
+
+      // then
+      expect(result).to.deep.equal(expectedDifferences);
     });
   });
 });
