@@ -4,7 +4,7 @@
   "description": "Trigger new grades and notify it",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
