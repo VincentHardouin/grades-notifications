@@ -4,8 +4,10 @@ chai.use(require('sinon-chai'));
 const expect = chai.expect;
 const nock = require('nock');
 const fs = require('fs');
+const axios = require('axios');
 
-const { getCoursesDifferences, getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile } = require('../src/index');
+const config = require('../src/config');
+const { getCoursesDifferences, getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
 
 describe('index', () => {
 
@@ -540,6 +542,23 @@ describe('index', () => {
       // then
       expect(fsStub).to.have.been.calledWithExactly(filename, 'utf-8');
       expect(result).to.equal(null);
+    });
+  });
+
+  describe('#sendGrades', () => {
+    it('should post on Slack webhook', async () => {
+      // given
+      const data = {};
+      const webhookUrl = config.slack.webhookUrl;
+      const headers = { headers: { 'content-type': 'application/json' } };
+      const axiosStub = sinon.stub(axios, 'post');
+      axiosStub.resolves();
+
+      // when
+      await sendGrades(data);
+
+      // then
+      expect(axiosStub).to.have.been.calledWithExactly(webhookUrl, data, headers);
     });
   });
 

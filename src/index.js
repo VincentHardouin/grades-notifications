@@ -3,6 +3,8 @@ const jsdom = require('jsdom');
 const fs = require('fs');
 const _ = require('lodash');
 
+const config = require('./config');
+
 function getGrades(studentId) {
   return axios.get('https://campusonline.inseec.net/note/note_ajax.php', {
     params: {
@@ -119,6 +121,11 @@ function createTemplateForSlack(differences) {
 
 }
 
+function sendGrades(data) {
+  const webhookUrl = config.slack.webhookUrl;
+  return  axios.post(webhookUrl, data, { headers: { 'content-type': 'application/json' } });
+}
+
 module.exports = {
   createTemplateForSlack,
   getCoursesDifferences,
@@ -126,4 +133,5 @@ module.exports = {
   gradesHtmmlToJson,
   readGradesInFile,
   writeGradesInFile,
+  sendGrades,
 };
