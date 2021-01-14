@@ -16,7 +16,7 @@ function getGrades(studentId) {
   });
 }
 
-function gradesHtmmlToJson(str) {
+function gradesHtmlToJson(str) {
   const dom = new jsdom.JSDOM(str);
   const elHtml =   dom.window.document.getElementsByClassName('master-1');
   const elements = Array.from(elHtml);
@@ -131,7 +131,7 @@ module.exports = {
   createTemplateForSlack,
   getCoursesDifferences,
   getGrades,
-  gradesHtmmlToJson,
+  gradesHtmlToJson,
   readGradesInFile,
   writeGradesInFile,
   sendGrades,

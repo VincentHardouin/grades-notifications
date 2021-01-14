@@ -7,7 +7,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 const config = require('../src/config');
-const { getCoursesDifferences, getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
+const { getCoursesDifferences, getGrades, gradesHtmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
 
 describe('index', () => {
 
@@ -37,7 +37,7 @@ describe('index', () => {
     });
   });
 
-  describe('#gradesHtmmlToJson', () => {
+  describe('#gradesHtmlToJson', () => {
     it('should return grades into JSON format', async () => {
       // given
       const grades = '<table>\n' +
@@ -493,7 +493,7 @@ describe('index', () => {
       ];
 
       // when
-      const result = gradesHtmmlToJson(grades);
+      const result = gradesHtmlToJson(grades);
 
       // then
       expect(result).to.deep.equal(expectedResult);
