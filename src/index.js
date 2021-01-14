@@ -99,7 +99,28 @@ function getCoursesDifferences(oldValues, newValues) {
   });
 }
 
+function createTemplateForSlack(differences) {
+  return differences.map(function(module) {
+    return module.matieres.map(function(matiere) {
+      return {
+        'fallback': 'Nouvelles Notes !! :memo: ',
+        'text': `Matière : ${matiere.title}`,
+        'title': 'Nouvelles Notes !! :memo: ',
+        'fields': matiere.evaluations.map(function(eval) {
+          return {
+            'title': eval.title,
+            'value': eval.note,
+            'short': true,
+          };
+        }),
+      };
+    });
+  });
+
+}
+
 module.exports = {
+  createTemplateForSlack,
   getCoursesDifferences,
   getGrades,
   gradesHtmmlToJson,
