@@ -50,8 +50,17 @@ function writeGradesInFile(grades, filename) {
   return fs.writeFileSync(filename, stringifiedGrades);
 }
 
+function readGradesInFile(filename) {
+  const stringifiedGrades = fs.readFileSync(filename, 'utf-8');
+  if (!stringifiedGrades) {
+    return null;
+  }
+  return  JSON.parse(stringifiedGrades);
+}
+
 module.exports = {
   getGrades,
   gradesHtmmlToJson,
+  readGradesInFile,
   writeGradesInFile,
 };

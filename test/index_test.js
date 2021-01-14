@@ -5,9 +5,13 @@ const expect = chai.expect;
 const nock = require('nock');
 const fs = require('fs');
 
-const { getGrades, gradesHtmmlToJson, writeGradesInFile } = require('../src/index');
+const { getGrades, gradesHtmmlToJson, readGradesInFile, writeGradesInFile } = require('../src/index');
 
 describe('index', () => {
+
+  afterEach(() => {
+    sinon.restore();
+  });
 
   describe('#getGrades', () => {
     it('should return all grades', async () => {
@@ -506,6 +510,36 @@ describe('index', () => {
 
       // then
       expect(fsStub).to.have.been.calledWithExactly(filename, stringifiedGrades);
+    });
+  });
+
+  describe('#readGradesInFile', () => {
+    it('should return grades from file', async () => {
+      // given
+      const grades = { note: 12 };
+      const stringifiedGrades = JSON.stringify(grades);
+      const filename = 'filename.json';
+      const fsStub = sinon.stub(fs, 'readFileSync').returns(stringifiedGrades);
+
+      // when
+      const result = readGradesInFile(filename);
+
+      // then
+      expect(fsStub).to.have.been.calledWithExactly(filename, 'utf-8');
+      expect(result).to.deep.equal(grades);
+    });
+
+    it('should return null when file is empty', async () => {
+      // given
+      const filename = 'filename.json';
+      const fsStub = sinon.stub(fs, 'readFileSync').returns('');
+
+      // when
+      const result = readGradesInFile(filename);
+
+      // then
+      expect(fsStub).to.have.been.calledWithExactly(filename, 'utf-8');
+      expect(result).to.equal(null);
     });
   });
 });
