@@ -7,6 +7,10 @@ const config = require('./config');
 
 function getGrades(studentId) {
   const schoolUrlForGrades = config.schoolUrlForGrades;
+  if (!schoolUrlForGrades) {
+    throw new Error('SchoolUrlForGrades are not defined');
+  }
+
   return axios.get(schoolUrlForGrades, {
     params: {
       'numero_dossier': studentId,

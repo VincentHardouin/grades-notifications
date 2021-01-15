@@ -9,6 +9,17 @@ const axios = require('axios');
 const config = require('../src/config');
 const { getCoursesDifferences, getGrades, gradesHtmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
 
+function catchErr(promiseFn, ctx) {
+  return async (...args) => {
+    try {
+      await promiseFn.call(ctx, ...args);
+      return 'should have thrown an error';
+    } catch (err) {
+      return err;
+    }
+  };
+}
+
 describe('index', () => {
 
   afterEach(() => {
@@ -34,6 +45,18 @@ describe('index', () => {
       // then
       expect(result).to.be.not.empty;
       expect(scope.isDone()).to.be.true;
+    });
+
+    it('should throw Error when schoolUrlForGrades are not defined', async () => {
+      // given
+      const studentId = 'azerty123';
+      config.schoolUrlForGrades = undefined;
+
+      // when
+      const error = await catchErr(getGrades)(studentId);
+
+      // then
+      expect(error.message).to.be.equal('SchoolUrlForGrades are not defined');
     });
   });
 
