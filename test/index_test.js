@@ -7,7 +7,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 const config = require('../src/config');
-const { getCoursesDifferences, getGrades, gradesHtmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
+const { createTemplateForSlack, getCoursesDifferences, getGrades, gradesHtmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../src/index');
 
 function catchErr(promiseFn, ctx) {
   return async (...args) => {
@@ -668,6 +668,104 @@ describe('index', () => {
 
       // then
       expect(result).to.deep.equal(expectedDifferences);
+    });
+  });
+
+  describe('#createTemplateForSlack', () => {
+    it('should return blocks for slack with grades', () => {
+      // given
+      const differences = [{
+        matieres: [
+          {
+            evaluations: [
+              {
+                note: '12,00 ',
+                noteRattrapage: '',
+                title: 'Contrôle Continu',
+              },
+              {
+                note: '12,00 ',
+                noteRattrapage: '',
+                title: 'Examen',
+              },
+            ],
+            title: 'Anglais / English',
+          },
+          {
+            evaluations: [
+              {
+                note: '11,00 ',
+                noteRattrapage: '',
+                title: 'Examen',
+              },
+            ],
+            title: 'Management d\'équipe / Team Management',
+          },
+          {
+            evaluations: [
+              {
+                note: '10,00',
+                noteRattrapage: '',
+                title: 'Examen',
+              },
+            ],
+            title: 'La Dialogue Social / Social Dialogue',
+          },
+        ],
+        module: 'Module Langues et Formation Humaine',
+      }];
+
+      const expectedResult = [
+        {
+          fields: [
+            {
+              text: '*Contrôle Continu*\n 12,00 ',
+              type: 'mrkdwn',
+            },
+            {
+              text: '*Examen*\n 12,00 ',
+              type: 'mrkdwn',
+            },
+          ],
+          text: {
+            text: '*Nouvelles Notes !!* :memo: \nMatière : Anglais / English',
+            type: 'mrkdwn',
+          },
+          type: 'section',
+        },
+        {
+          fields: [
+            {
+              text: '*Examen*\n 11,00 ',
+              type: 'mrkdwn',
+            },
+          ],
+          text: {
+            text: '*Nouvelles Notes !!* :memo: \nMatière : Management d\'équipe / Team Management',
+            type: 'mrkdwn',
+          },
+          type: 'section',
+        },
+        {
+          fields: [
+            {
+              text: '*Examen*\n 10,00',
+              type: 'mrkdwn',
+            },
+          ],
+          text: {
+            text: '*Nouvelles Notes !!* :memo: \nMatière : La Dialogue Social / Social Dialogue',
+            type: 'mrkdwn',
+          },
+          type: 'section',
+        },
+      ];
+
+      // when
+      const result = createTemplateForSlack(differences);
+
+      // then
+      expect(result).to.deep.equal(expectedResult);
     });
   });
 });

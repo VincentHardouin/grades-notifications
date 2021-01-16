@@ -107,28 +107,30 @@ function getCoursesDifferences(oldValues, newValues) {
 }
 
 function createTemplateForSlack(differences) {
-  return differences.map(function(module) {
-    return module.matieres.map(function(matiere) {
+  const template = differences.flatMap((module) => {
+    return module.matieres.flatMap((matiere) => {
       return {
-        'fallback': 'Nouvelles Notes !! :memo: ',
-        'text': `Matière : ${matiere.title}`,
-        'title': 'Nouvelles Notes !! :memo: ',
-        'fields': matiere.evaluations.map(function(eval) {
+        'type': 'section',
+        'text': {
+          'type': 'mrkdwn',
+          'text': `*Nouvelles Notes !!* :memo: \nMatière : ${matiere.title}`,
+        },
+        'fields': matiere.evaluations.map((evaluation) => {
           return {
-            'title': eval.title,
-            'value': eval.note,
-            'short': true,
+            'type': 'mrkdwn',
+            'text': `*${evaluation.title}*\n ${evaluation.note}`,
           };
         }),
       };
     });
   });
 
+  return template;
 }
 
 function sendGrades(data) {
   const webhookUrl = config.slack.webhookUrl;
-  return  axios.post(webhookUrl, data, { headers: { 'content-type': 'application/json' } });
+  return axios.post(webhookUrl, data, { headers: { 'content-type': 'application/json' } });
 }
 
 module.exports = {
