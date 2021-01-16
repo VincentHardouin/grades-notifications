@@ -5,19 +5,20 @@ const _ = require('lodash');
 
 const config = require('./config');
 
-function getGrades(studentId) {
+async function getGrades(studentId) {
   const schoolUrlForGrades = config.schoolUrlForGrades;
   if (!schoolUrlForGrades) {
     throw new Error('SchoolUrlForGrades are not defined');
   }
 
-  return axios.get(schoolUrlForGrades, {
+  const { data } = await axios.get(schoolUrlForGrades, {
     params: {
       'numero_dossier': studentId,
       version: 'PROD',
       'mode_test': 'N',
     },
   });
+  return data;
 }
 
 function gradesHtmlToJson(str) {

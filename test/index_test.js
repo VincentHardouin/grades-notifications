@@ -37,7 +37,7 @@ describe('index', () => {
           'numero_dossier': studentId,
           version: 'PROD',
           'mode_test': 'N',
-        }).reply(200);
+        }).reply(200, { data: { test: 'test-data' } });
 
       // when
       const result = await getGrades(studentId);
