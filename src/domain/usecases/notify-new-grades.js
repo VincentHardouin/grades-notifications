@@ -1,10 +1,141 @@
-const {  createTemplateForSlack, getCoursesDifferences, getGrades, gradesHtmlToJson, readGradesInFile, writeGradesInFile, sendGrades } = require('../../index');
 require('dotenv').config();
 const config = require('../../config');
 const _ = require('lodash');
+const axios = require('axios');
+const jsdom = require('jsdom');
+const fs = require('fs');
+
+async function _getGrades(studentId) {
+  const schoolUrlForGrades = config.schoolUrlForGrades;
+  if (!schoolUrlForGrades) {
+    throw new Error('SchoolUrlForGrades are not defined');
+  }
+
+  const { data } = await axios.get(schoolUrlForGrades, {
+    params: {
+      'numero_dossier': studentId,
+      version: 'PROD',
+      'mode_test': 'N',
+    },
+  });
+  return data;
+}
+
+function _gradesHtmlToJson(str) {
+  const dom = new jsdom.JSDOM(str);
+  const elHtml = dom.window.document.getElementsByClassName('master-1');
+  const elements = Array.from(elHtml);
+
+  const els = elements.reduce(function(acc, curr) {
+    const child = curr.children[0];
+    const className = child.className;
+
+    if (className.match(/ens/)) {
+      const text = child.textContent;
+      acc.push({ module: text, matieres: [] });
+    }
+    if (className.match(/fpc/)) {
+      const text = child.textContent;
+      acc[acc.length - 1].matieres.push({ title: text, evaluations: [] });
+    }
+    if (className.match(/ev/)) {
+      const text = child.textContent;
+      const note = curr.children[3].textContent;
+      const noteRattrapage = curr.children[4].textContent;
+      const index = acc.length - 1;
+      const matiereIndex = acc[index].matieres.length - 1;
+
+      acc[index].matieres[matiereIndex].evaluations.push({  title: text, note, noteRattrapage });
+    }
+
+    return acc;
+  }, []);
+
+  return els;
+}
+
+function _writeGradesInFile(grades, filename) {
+  const stringifiedGrades = JSON.stringify(grades);
+  return fs.writeFileSync(filename, stringifiedGrades);
+}
+
+function _readGradesInFile(filename) {
+  const stringifiedGrades = fs.readFileSync(filename, 'utf-8');
+  if (!stringifiedGrades) {
+    return null;
+  }
+  return  JSON.parse(stringifiedGrades);
+}
+
+function _getOldModule(newModule, oldModules) {
+  return _.find(oldModules, ['module', newModule.module]);
+}
+
+function _getOldMatiere(newMatiere, oldMatiere) {
+  return _.find(oldMatiere, ['title', newMatiere.title]);
+}
+
+function _findOnlyEditedEvaluations(oldModule) {
+  return function(matiere) {
+    const oldMatiere = _getOldMatiere(matiere, oldModule.matieres);
+    const summarizedEvaluations = _.differenceWith(matiere.evaluations, oldMatiere.evaluations, _.isEqual);
+
+    matiere.evaluations = summarizedEvaluations;
+    return matiere;
+  };
+}
+
+function _getOldModulesByDifferencesAndOldValues(differences, oldValues) {
+  return _.filter(oldValues, function(module) {
+    return _.some(differences, ['module', module.module]);
+  });
+}
+
+function _getCoursesDifferences(oldValues, newValues) {
+  const differences = _(newValues).differenceWith(oldValues, _.isEqual).value();
+  const oldModules = _getOldModulesByDifferencesAndOldValues(differences, oldValues);
+
+  return _.map(differences, function(module) {
+
+    const oldModule = _getOldModule(module, oldModules);
+    let summarizedMatieres = _.differenceWith(module.matieres, oldModule.matieres, _.isEqual);
+
+    summarizedMatieres = _.map(summarizedMatieres, _findOnlyEditedEvaluations(oldModule));
+
+    module.matieres = summarizedMatieres;
+    return module;
+  });
+}
+
+function _createTemplateForSlack(differences) {
+  const template = differences.flatMap((module) => {
+    return module.matieres.flatMap((matiere) => {
+      return {
+        'type': 'section',
+        'text': {
+          'type': 'mrkdwn',
+          'text': `*Nouvelles Notes !!* :memo: \nMatière : ${matiere.title}`,
+        },
+        'fields': matiere.evaluations.map((evaluation) => {
+          return {
+            'type': 'mrkdwn',
+            'text': `*${evaluation.title}*\n ${evaluation.note}`,
+          };
+        }),
+      };
+    });
+  });
+
+  return template;
+}
+
+function _sendGrades(data) {
+  const webhookUrl = config.slack.webhookUrl;
+  return axios.post(webhookUrl, data, { headers: { 'content-type': 'application/json' } });
+}
 
 module.exports = async function notifyNewGrades() {
-  const oldGrades = readGradesInFile('test.json');
+  const oldGrades = _readGradesInFile('test.json');
   if (!oldGrades) {
     throw new Error('oldGrades are not defined');
   }
@@ -14,19 +145,19 @@ module.exports = async function notifyNewGrades() {
     throw new Error('studentId are not defined');
   }
   
-  let newGrades = await getGrades(studentId);
+  let newGrades = await _getGrades(studentId);
   if (!newGrades) {
     throw new Error('newGrades are not available');
   }
 
-  newGrades = gradesHtmlToJson(newGrades);
-  const getDifferences = getCoursesDifferences(newGrades, oldGrades);
+  newGrades = _gradesHtmlToJson(newGrades);
+  const getDifferences = _getCoursesDifferences(newGrades, oldGrades);
 
   if (!_.isEmpty(getDifferences)) {
-    const template = createTemplateForSlack(getDifferences);
+    const template = _createTemplateForSlack(getDifferences);
 
-    writeGradesInFile(newGrades, 'test.json');
-    await sendGrades({ blocks: template });
+    _writeGradesInFile(newGrades, 'test.json');
+    await _sendGrades({ blocks: template });
 
     return 'New grades notifications are send';
   } else {
