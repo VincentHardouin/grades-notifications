@@ -23,7 +23,7 @@ async function getGrades(studentId) {
 
 function gradesHtmlToJson(str) {
   const dom = new jsdom.JSDOM(str);
-  const elHtml =   dom.window.document.getElementsByClassName('master-1');
+  const elHtml = dom.window.document.getElementsByClassName('master-1');
   const elements = Array.from(elHtml);
 
   const els = elements.reduce(function(acc, curr) {

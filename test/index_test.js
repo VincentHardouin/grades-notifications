@@ -20,7 +20,7 @@ function catchErr(promiseFn, ctx) {
   };
 }
 
-describe('index', () => {
+describe('Unit | index', () => {
 
   afterEach(() => {
     sinon.restore();
@@ -50,6 +50,7 @@ describe('index', () => {
     it('should throw Error when schoolUrlForGrades are not defined', async () => {
       // given
       const studentId = 'azerty123';
+      const oldSchoolUlrForGrades = config.schoolUrlForGrades;
       config.schoolUrlForGrades = undefined;
 
       // when
@@ -57,6 +58,7 @@ describe('index', () => {
 
       // then
       expect(error.message).to.be.equal('SchoolUrlForGrades are not defined');
+      config.schoolUrlForGrades = oldSchoolUlrForGrades;
     });
   });
 
