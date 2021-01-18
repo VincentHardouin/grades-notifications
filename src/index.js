@@ -1,20 +1,22 @@
+const fastify = require('fastify')({ logger: true });
 const notifyNewGrades = require('./domain/usecases/notify-new-grades');
 
-async function main() {
+fastify.get('/', async (request, reply) => {
   try {
-    await notifyNewGrades();
+    const result = await notifyNewGrades();
+    return reply.code(200).send(result);
   } catch (e) {
     console.error(e);
+    return reply.code(500).send();
+  }
+});
+
+const start = async () => {
+  try {
+    await fastify.listen(8080);
+  } catch (err) {
+    fastify.log.error(err);
     process.exit(1);
   }
-}
-
-if (require.main === module) {
-  main().then(
-    () => process.exit(0),
-    (err) => {
-      console.error(err);
-      process.exit(1);
-    },
-  );
-}
+};
+start();
