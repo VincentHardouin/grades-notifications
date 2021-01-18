@@ -1,9 +1,34 @@
 require('dotenv').config();
 const config = require('../../config');
+const storageClient = require('../../infrastructure/StorageClient');
 const _ = require('lodash');
 const axios = require('axios');
 const jsdom = require('jsdom');
 const fs = require('fs');
+
+function _getOldGradesFromLocal(filename) {
+  const stringifiedGrades = fs.readFileSync(filename, 'utf-8');
+  if (!stringifiedGrades) {
+    return null;
+  }
+  return  JSON.parse(stringifiedGrades);
+}
+
+async function _getOldGradesFromRemote(studentId) {
+  const fileName = `${studentId}/grades.json`;
+  const result = await storageClient.getObject(fileName);
+  return JSON.parse(result.data.body.toString('utf-8'));
+}
+
+async function _getOldGrades(studentId) {
+  let oldGrades;
+  if (config.featureToggles.withRemoteStorage) {
+    oldGrades = await _getOldGradesFromRemote(studentId);
+  } else {
+    oldGrades = _getOldGradesFromLocal(`${studentId}.json`);
+  }
+  return oldGrades;
+}
 
 async function _getGrades(studentId) {
   const schoolUrlForGrades = config.schoolUrlForGrades;
@@ -59,12 +84,16 @@ function _writeGradesInFile(grades, filename) {
   return fs.writeFileSync(filename, stringifiedGrades);
 }
 
-function _readGradesInFile(filename) {
-  const stringifiedGrades = fs.readFileSync(filename, 'utf-8');
-  if (!stringifiedGrades) {
-    return null;
+async function _saveGradesInRemote(grades, studentId) {
+  return storageClient.putObject({ fileName: `${studentId}/grades.json`, fileContent: grades });
+}
+
+async function _saveGrades(grades, studentId) {
+  if (config.featureToggles.withRemoteStorage) {
+    return _saveGradesInRemote(grades, studentId);
+  } else {
+    return _writeGradesInFile(grades, `${studentId}.json`);
   }
-  return  JSON.parse(stringifiedGrades);
 }
 
 function _getOldModule(newModule, oldModules) {
@@ -135,14 +164,14 @@ function _sendGrades(data) {
 }
 
 module.exports = async function notifyNewGrades() {
-  const oldGrades = _readGradesInFile('test.json');
-  if (!oldGrades) {
-    throw new Error('oldGrades are not defined');
-  }
-
   const studentId = config.studentId;
   if (!studentId) {
     throw new Error('studentId are not defined');
+  }
+  
+  const oldGrades = await _getOldGrades(studentId);
+  if (!oldGrades) {
+    throw new Error('oldGrades are not defined');
   }
   
   let newGrades = await _getGrades(studentId);
@@ -156,7 +185,7 @@ module.exports = async function notifyNewGrades() {
   if (!_.isEmpty(getDifferences)) {
     const template = _createTemplateForSlack(getDifferences);
 
-    _writeGradesInFile(newGrades, 'test.json');
+    await _saveGrades(newGrades, studentId);
     await _sendGrades({ blocks: template });
 
     return 'New grades notifications are send';

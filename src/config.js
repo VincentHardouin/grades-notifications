@@ -1,4 +1,9 @@
 require('dotenv').config();
+
+function isFeatureEnabled(environmentVariable) {
+  return environmentVariable === 'true';
+}
+
 module.exports = (function() {
 
   const config = {
@@ -19,6 +24,10 @@ module.exports = (function() {
 
     schoolUrlForGrades: process.env.SCHOOL_URL_FOR_GRADES,
     studentId: process.env.STUDENT_ID,
+
+    featureToggles: {
+      withRemoteStorage: isFeatureEnabled(process.env.FT_WITH_REMOTE_STORAGE),
+    },
   };
 
   if (process.env.NODE_ENV === 'test') {
