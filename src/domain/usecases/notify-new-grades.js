@@ -17,7 +17,7 @@ function _getOldGradesFromLocal(filename) {
 async function _getOldGradesFromRemote(studentId) {
   const fileName = `${studentId}/grades.json`;
   const result = await storageClient.getObject(fileName);
-  return JSON.parse(result.data.body.toString('utf-8'));
+  return JSON.parse(result.Body.toString('utf-8'));
 }
 
 async function _getOldGrades(studentId) {
@@ -85,7 +85,7 @@ function _writeGradesInFile(grades, filename) {
 }
 
 async function _saveGradesInRemote(grades, studentId) {
-  return storageClient.putObject({ fileName: `${studentId}/grades.json`, fileContent: grades });
+  return storageClient.putObject({ fileName: `${studentId}/grades.json`, fileContent: JSON.stringify(grades) });
 }
 
 async function _saveGrades(grades, studentId) {

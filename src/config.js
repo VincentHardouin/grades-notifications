@@ -31,6 +31,7 @@ module.exports = (function() {
   };
 
   if (process.env.NODE_ENV === 'test') {
+    config.featureToggles.withRemoteStorage = false;
     config.filesStorage.scaleway.accessKeyId = 1;
     config.filesStorage.scaleway.secretAccessKey = 'scaleway-s3-access-key';
     config.filesStorage.scaleway.region = 'par';

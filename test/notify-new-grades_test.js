@@ -128,10 +128,10 @@ describe('Unit | Use Case | notify-new-grades', () => {
       sinon.stub(axios, 'get').resolves({ data: htmlGrades });
       sinon.stub(fs, 'readFileSync').throws(new Error('Use fs.readFileSync instead of storageClient.getObject'));
       const storageClientStub = sinon.stub(storageClient, 'getObject');
-      storageClientStub.resolves({ data: { body: new Buffer.from(JSON.stringify([{
+      storageClientStub.resolves({ Body: new Buffer.from(JSON.stringify([{
         module: 'Module de test',
         matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage:'' }] }],
-      }])) } });
+      }])) });
 
       const writeFileStub = sinon.stub(fs, 'writeFileSync');
       sinon.stub(axios, 'post');
@@ -263,10 +263,10 @@ describe('Unit | Use Case | notify-new-grades', () => {
         sinon.stub(axios, 'get').resolves({ data: htmlGrades });
 
         const storageClientGetStub = sinon.stub(storageClient, 'getObject');
-        storageClientGetStub.resolves({ data: { body: new Buffer.from(JSON.stringify([{
+        storageClientGetStub.resolves({ Body: new Buffer.from(JSON.stringify([{
           module: 'Module de test',
           matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage:'' }] }],
-        }])) } });
+        }])) });
 
         const storageClientPutStub = sinon.stub(storageClient, 'putObject');
         storageClientPutStub.resolves();
@@ -407,21 +407,22 @@ describe('Unit | Use Case | notify-new-grades', () => {
             '\t<td class="rattrapage item-ev1"></td>\n' +
             '</tr></table>';
 
-        const newGrades = [{
+        const newGrades = JSON.stringify([{
           module: 'Module de test',
           matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage: '' }] }],
-        }];
+        }]);
 
         sinon.stub(axios, 'get').resolves({ data: htmlGrades });
         sinon.stub(axios, 'post').resolves();
 
         const storageClientGetStub = sinon.stub(storageClient, 'getObject');
         storageClientGetStub.resolves({
-          data: { body: new Buffer.from(JSON.stringify([{
+          Body: new Buffer.from(JSON.stringify([{
             module: 'Module de test',
             matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: 12 }],
             }],
-          }])) } });
+          }])),
+        });
 
         const storageClientPutStub = sinon.stub(storageClient, 'putObject');
         storageClientPutStub.resolves();
