@@ -12,4 +12,5 @@ FROM node:12.19.1-alpine
 
 COPY --from=build /app /
 ENV NODE_ENV=production
+EXPOSE 8080
 CMD [ "npm", "start" ]
