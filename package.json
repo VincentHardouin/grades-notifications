@@ -7,7 +7,8 @@
     "start": "node ./src/index",
     "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "configure": "cp sample.env .env && npm ci"
   },
   "author": "VincentHardouin",
   "license": "AGPL-3.0",
