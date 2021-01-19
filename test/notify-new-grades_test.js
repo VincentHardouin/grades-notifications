@@ -59,7 +59,7 @@ describe('Unit | Use Case | notify-new-grades', () => {
         'numero_dossier': studentId,
         version: 'PROD',
         'mode_test': 'N',
-      }).reply(200, {});
+      }).reply(200, htmlGrades);
     sinon.stub(fs, 'readFileSync').returns(JSON.stringify({ test: 'test' }));
     sinon.stub(axios, 'post').resolves();
 
@@ -313,16 +313,37 @@ describe('Unit | Use Case | notify-new-grades', () => {
   });
 
   context('when school api not return grades', () => {
-    it('should throw error', async () => {
-      // given
-      sinon.stub(fs, 'readFileSync').returns(JSON.stringify({ test: 'test' }));
-      sinon.stub(axios, 'get').resolves({});
 
-      // when
-      const error = await catchErr(notifyNewGrades)();
+    context('when it return empty response', () => {
+      it('should throw error', async () => {
+        // given
+        sinon.stub(fs, 'readFileSync').returns(JSON.stringify({ test: 'test' }));
+        sinon.stub(axios, 'get').resolves({});
 
-      // then
-      expect(error.message).to.be.equal('newGrades are not available');
+        // when
+        const error = await catchErr(notifyNewGrades)();
+
+        // then
+        expect(error.message).to.be.equal('newGrades are not available');
+      });
+    });
+
+    context('when it return html without grades', () => {
+      it('should throw error', async () => {
+        // given
+        sinon.stub(axios, 'get').resolves({ data: '<p>Error during load grades.</p>' });
+        const fsStub = sinon.stub(fs, 'readFileSync');
+        fsStub.returns(JSON.stringify([{
+          module: 'Module de test',
+          matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage:'' }] }],
+        }]));
+
+        // when
+        const error = await catchErr(notifyNewGrades)();
+
+        // then
+        expect(error.message).to.be.equal('newGrades are not available');
+      });
     });
   });
 });

@@ -180,6 +180,10 @@ module.exports = async function notifyNewGrades() {
   }
 
   newGrades = _gradesHtmlToJson(newGrades);
+  if (_.isEmpty(newGrades)) {
+    throw new Error('newGrades are not available');
+  }
+
   const getDifferences = _getCoursesDifferences(newGrades, oldGrades);
 
   if (!_.isEmpty(getDifferences)) {
