@@ -9,6 +9,34 @@ For that, I created this FaaS, with [Fastify](https://www.fastify.io/) as server
 
 ## Getting Started 
 
+1/ Get the sources
+
+```shell
+git clone git@github.com:VincentHardouin/grades-notifications && cd grades-notifications
+```
+
+2/ Execute the configuration script:
+
+```shell
+npm run configure
+```
+
+3/ Provide all needed environment variable in `.env`
+
+4/ Start the application
+
+```shell
+npm start
+```
+
+5/ Test application with : 
+
+```
+curl -X POST http://localhost:8080
+```
+
+6/ Develop and add wonderful features!
+
 ## Features 
 
 ### Local storage or S3 Storage 
