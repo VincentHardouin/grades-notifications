@@ -23,6 +23,28 @@ function catchErr(promiseFn, ctx) {
 
 describe('Unit | Use Case | notify-new-grades', () => {
 
+  const htmlGrades =  '<table><tr class="slave master-1">\n' +
+      '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
+      '\t<td class="ponderation item-ens"></td>\n' +
+      '\t<td class="coefficient item-ens"></td>\n' +
+      '\t<td class="note item-ens"></td>\n' +
+      '\t<td class="rattrapage item-ens"></td>\n' +
+      '</tr>\n' +
+      '<tr class="slave master-1">\n' +
+      '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
+      '\t<td class="ponderation item-fpc">1</td>\n' +
+      '\t<td class="coefficient item-fpc"></td>\n' +
+      '\t<td class="note item-fpc"></td>\n' +
+      '\t<td class="rattrapage item-fpc"></td>\n' +
+      '</tr>\n' +
+      '<tr class="slave master-1">\n' +
+      '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
+      '\t<td class="ponderation item-ev1"></td>\n' +
+      '\t<td class="coefficient item-ev1">100%</td>\n' +
+      '\t<td class="note item-ev1">13</td>\n' +
+      '\t<td class="rattrapage item-ev1"></td>\n' +
+      '</tr></table>';
+
   afterEach(async () => {
     await sinon.restore();
   });
@@ -51,28 +73,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
   context('when feature toggle with remote storage is disabled', () => {
     it('should get old grades with local file', async () => {
       // given
-      const htmlGrades =  '<table><tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-          '\t<td class="ponderation item-ens"></td>\n' +
-          '\t<td class="coefficient item-ens"></td>\n' +
-          '\t<td class="note item-ens"></td>\n' +
-          '\t<td class="rattrapage item-ens"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-          '\t<td class="ponderation item-fpc">1</td>\n' +
-          '\t<td class="coefficient item-fpc"></td>\n' +
-          '\t<td class="note item-fpc"></td>\n' +
-          '\t<td class="rattrapage item-fpc"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-          '\t<td class="ponderation item-ev1"></td>\n' +
-          '\t<td class="coefficient item-ev1">100%</td>\n' +
-          '\t<td class="note item-ev1">13</td>\n' +
-          '\t<td class="rattrapage item-ev1"></td>\n' +
-          '</tr></table>';
-
       sinon.stub(axios, 'get').resolves({ data: htmlGrades });
       const fsStub = sinon.stub(fs, 'readFileSync');
       fsStub.returns(JSON.stringify([{
@@ -103,28 +103,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
 
     it('should get old grades with remote file', async () => {
       // given
-      const htmlGrades =  '<table><tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-          '\t<td class="ponderation item-ens"></td>\n' +
-          '\t<td class="coefficient item-ens"></td>\n' +
-          '\t<td class="note item-ens"></td>\n' +
-          '\t<td class="rattrapage item-ens"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-          '\t<td class="ponderation item-fpc">1</td>\n' +
-          '\t<td class="coefficient item-fpc"></td>\n' +
-          '\t<td class="note item-fpc"></td>\n' +
-          '\t<td class="rattrapage item-fpc"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-          '\t<td class="ponderation item-ev1"></td>\n' +
-          '\t<td class="coefficient item-ev1">100%</td>\n' +
-          '\t<td class="note item-ev1">13</td>\n' +
-          '\t<td class="rattrapage item-ev1"></td>\n' +
-          '</tr></table>';
-
       sinon.stub(axios, 'get').resolves({ data: htmlGrades });
       sinon.stub(fs, 'readFileSync').throws(new Error('Use fs.readFileSync instead of storageClient.getObject'));
       const storageClientStub = sinon.stub(storageClient, 'getObject');
@@ -148,28 +126,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
   context('when there are not differences between olGrades and newGrades', () => {
     it('should not call slack API', async () => {
       // given
-      const htmlGrades =  '<table><tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-          '\t<td class="ponderation item-ens"></td>\n' +
-          '\t<td class="coefficient item-ens"></td>\n' +
-          '\t<td class="note item-ens"></td>\n' +
-          '\t<td class="rattrapage item-ens"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-          '\t<td class="ponderation item-fpc">1</td>\n' +
-          '\t<td class="coefficient item-fpc"></td>\n' +
-          '\t<td class="note item-fpc"></td>\n' +
-          '\t<td class="rattrapage item-fpc"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-          '\t<td class="ponderation item-ev1"></td>\n' +
-          '\t<td class="coefficient item-ev1">100%</td>\n' +
-          '\t<td class="note item-ev1">13</td>\n' +
-          '\t<td class="rattrapage item-ev1"></td>\n' +
-          '</tr></table>';
-
       sinon.stub(axios, 'get').resolves({ data: htmlGrades });
       sinon.stub(fs, 'readFileSync').returns(JSON.stringify([{
         module: 'Module de test',
@@ -189,28 +145,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
     context('when feature toggle with remote storage is disabled', () => {
       it('should not save grades in file', async () => {
         // given
-        const htmlGrades =  '<table><tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-            '\t<td class="ponderation item-ens"></td>\n' +
-            '\t<td class="coefficient item-ens"></td>\n' +
-            '\t<td class="note item-ens"></td>\n' +
-            '\t<td class="rattrapage item-ens"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-            '\t<td class="ponderation item-fpc">1</td>\n' +
-            '\t<td class="coefficient item-fpc"></td>\n' +
-            '\t<td class="note item-fpc"></td>\n' +
-            '\t<td class="rattrapage item-fpc"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-            '\t<td class="ponderation item-ev1"></td>\n' +
-            '\t<td class="coefficient item-ev1">100%</td>\n' +
-            '\t<td class="note item-ev1">13</td>\n' +
-            '\t<td class="rattrapage item-ev1"></td>\n' +
-            '</tr></table>';
-
         sinon.stub(axios, 'get').resolves({ data: htmlGrades });
         sinon.stub(fs, 'readFileSync').returns(JSON.stringify([{
           module: 'Module de test',
@@ -238,28 +172,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
 
       it('should not save grades in remote', async () => {
         // given
-        const htmlGrades =  '<table><tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-            '\t<td class="ponderation item-ens"></td>\n' +
-            '\t<td class="coefficient item-ens"></td>\n' +
-            '\t<td class="note item-ens"></td>\n' +
-            '\t<td class="rattrapage item-ens"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-            '\t<td class="ponderation item-fpc">1</td>\n' +
-            '\t<td class="coefficient item-fpc"></td>\n' +
-            '\t<td class="note item-fpc"></td>\n' +
-            '\t<td class="rattrapage item-fpc"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-            '\t<td class="ponderation item-ev1"></td>\n' +
-            '\t<td class="coefficient item-ev1">100%</td>\n' +
-            '\t<td class="note item-ev1">13</td>\n' +
-            '\t<td class="rattrapage item-ev1"></td>\n' +
-            '</tr></table>';
-
         sinon.stub(axios, 'get').resolves({ data: htmlGrades });
 
         const storageClientGetStub = sinon.stub(storageClient, 'getObject');
@@ -284,27 +196,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
     it('should post message on Slack', async () => {
       // given
       const slackWebhookUrl = config.slack.webhookUrl;
-      const htmlGrades =  '<table><tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-          '\t<td class="ponderation item-ens"></td>\n' +
-          '\t<td class="coefficient item-ens"></td>\n' +
-          '\t<td class="note item-ens"></td>\n' +
-          '\t<td class="rattrapage item-ens"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-          '\t<td class="ponderation item-fpc">1</td>\n' +
-          '\t<td class="coefficient item-fpc"></td>\n' +
-          '\t<td class="note item-fpc"></td>\n' +
-          '\t<td class="rattrapage item-fpc"></td>\n' +
-          '</tr>\n' +
-          '<tr class="slave master-1">\n' +
-          '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-          '\t<td class="ponderation item-ev1"></td>\n' +
-          '\t<td class="coefficient item-ev1">100%</td>\n' +
-          '\t<td class="note item-ev1">13</td>\n' +
-          '\t<td class="rattrapage item-ev1"></td>\n' +
-          '</tr></table>';
 
       sinon.stub(axios, 'get').resolves({ data: htmlGrades });
       sinon.stub(fs, 'readFileSync').returns(JSON.stringify([{
@@ -330,28 +221,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
 
       it('should save grades in file', async () => {
         // given
-        const htmlGrades = '<table><tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-            '\t<td class="ponderation item-ens"></td>\n' +
-            '\t<td class="coefficient item-ens"></td>\n' +
-            '\t<td class="note item-ens"></td>\n' +
-            '\t<td class="rattrapage item-ens"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-            '\t<td class="ponderation item-fpc">1</td>\n' +
-            '\t<td class="coefficient item-fpc"></td>\n' +
-            '\t<td class="note item-fpc"></td>\n' +
-            '\t<td class="rattrapage item-fpc"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-            '\t<td class="ponderation item-ev1"></td>\n' +
-            '\t<td class="coefficient item-ev1">100%</td>\n' +
-            '\t<td class="note item-ev1">13</td>\n' +
-            '\t<td class="rattrapage item-ev1"></td>\n' +
-            '</tr></table>';
-
         const newGrades = [{
           module: 'Module de test',
           matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage: '' }] }],
@@ -385,28 +254,6 @@ describe('Unit | Use Case | notify-new-grades', () => {
 
       it('should save grades in remote', async () => {
         // given
-        const htmlGrades = '<table><tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ens" style="padding-left: 60px;">Module de test</td>\n' +
-            '\t<td class="ponderation item-ens"></td>\n' +
-            '\t<td class="coefficient item-ens"></td>\n' +
-            '\t<td class="note item-ens"></td>\n' +
-            '\t<td class="rattrapage item-ens"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-fpc" style="padding-left: 75px;">Test</td>\n' +
-            '\t<td class="ponderation item-fpc">1</td>\n' +
-            '\t<td class="coefficient item-fpc"></td>\n' +
-            '\t<td class="note item-fpc"></td>\n' +
-            '\t<td class="rattrapage item-fpc"></td>\n' +
-            '</tr>\n' +
-            '<tr class="slave master-1">\n' +
-            '\t<td class="libelle item-ev1" style="padding-left: 75px;">CC</td>\n' +
-            '\t<td class="ponderation item-ev1"></td>\n' +
-            '\t<td class="coefficient item-ev1">100%</td>\n' +
-            '\t<td class="note item-ev1">13</td>\n' +
-            '\t<td class="rattrapage item-ev1"></td>\n' +
-            '</tr></table>';
-
         const newGrades = JSON.stringify([{
           module: 'Module de test',
           matieres: [{ title: 'Test', evaluations: [{ title: 'CC', note: '13', noteRattrapage: '' }] }],
