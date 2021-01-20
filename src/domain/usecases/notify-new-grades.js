@@ -121,17 +121,16 @@ function _getOldModulesByDifferencesAndOldValues(differences, oldValues) {
 }
 
 function _getCoursesDifferences(oldValues, newValues) {
-  const differences = _(newValues).differenceWith(oldValues, _.isEqual).value();
+  const differences = _.differenceWith(newValues, oldValues, _.isEqual);
   const oldModules = _getOldModulesByDifferencesAndOldValues(differences, oldValues);
 
   return _.map(differences, function(module) {
-
     const oldModule = _getOldModule(module, oldModules);
-    let summarizedMatieres = _.differenceWith(module.matieres, oldModule.matieres, _.isEqual);
 
-    summarizedMatieres = _.map(summarizedMatieres, _findOnlyEditedEvaluations(oldModule));
+    module.matieres = _(module.matieres)
+      .differenceWith(oldModule.matieres, _.isEqual)
+      .map(_findOnlyEditedEvaluations(oldModule)).value();
 
-    module.matieres = summarizedMatieres;
     return module;
   });
 }
