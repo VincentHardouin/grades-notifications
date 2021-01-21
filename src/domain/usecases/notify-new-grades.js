@@ -185,14 +185,14 @@ module.exports = async function notifyNewGrades() {
 
   const getDifferences = _getCoursesDifferences(newGrades, oldGrades);
 
-  if (!_.isEmpty(getDifferences)) {
-    const template = _createTemplateForSlack(getDifferences);
-
-    await _saveGrades(newGrades, studentId);
-    await _sendGrades({ blocks: template });
-
-    return 'New grades notifications are send';
-  } else {
+  if (_.isEmpty(getDifferences)) {
     return 'No new grades';
   }
+
+  const template = _createTemplateForSlack(getDifferences);
+
+  await _saveGrades(newGrades, studentId);
+  await _sendGrades({ blocks: template });
+
+  return 'New grades notifications are send';
 };
