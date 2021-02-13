@@ -204,7 +204,7 @@ describe('Unit | Use Case | notify-new-grades', () => {
       }]));
       sinon.stub(fs, 'writeFileSync');
 
-      const expectedTemplate = [{ type:'section', text:{ type:'mrkdwn',text:'*Nouvelles Notes !!* :memo: \nMatière : Test' }, fields:[{ type:'mrkdwn',text:'*CC*\n 12' }] }];
+      const expectedTemplate = [{ type:'section', text:{ type:'mrkdwn',text:'*Nouvelles Notes !!* :memo: \nMatière : Test' }, fields:[{ type:'mrkdwn',text:'*CC*\n 13' }] }];
       const postSlackStub = sinon.stub(axios, 'post').resolves();
 
       // when

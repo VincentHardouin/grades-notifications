@@ -107,7 +107,7 @@ function _getOldMatiere(newMatiere, oldMatiere) {
 function _findOnlyEditedEvaluations(oldModule) {
   return function(matiere) {
     const oldMatiere = _getOldMatiere(matiere, oldModule.matieres);
-    const summarizedEvaluations = _.differenceWith(matiere.evaluations, oldMatiere.evaluations, _.isEqual);
+    const summarizedEvaluations = _.differenceWith(oldMatiere.evaluations, matiere.evaluations, _.isEqual);
 
     matiere.evaluations = summarizedEvaluations;
     return matiere;
