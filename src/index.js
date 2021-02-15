@@ -1,5 +1,6 @@
 const fastify = require('fastify')({ logger: true });
 const notifyNewGrades = require('./domain/usecases/notify-new-grades');
+const config = require('./config');
 
 fastify.post('/', async (request, reply) => {
   try {
@@ -13,7 +14,7 @@ fastify.post('/', async (request, reply) => {
 
 const start = async () => {
   try {
-    await fastify.listen(8080);
+    await fastify.listen(config.host, config.port);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
