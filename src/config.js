@@ -7,8 +7,8 @@ function isFeatureEnabled(environmentVariable) {
 module.exports = (function() {
 
   const config = {
-    host: process.env.host || '127.0.0.1',
-    port: process.env.port || 8080,
+    host: process.env.HOST || '127.0.0.1',
+    port: process.env.PORT || 8080,
 
     filesStorage: {
       scaleway: {
